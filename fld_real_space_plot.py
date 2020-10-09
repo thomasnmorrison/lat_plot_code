@@ -1,8 +1,8 @@
 # fld_real_space_plot.py
 
 # Script to plot real space slices of the fields
-# Plot 1: 2d slice of \phi plotted in real space
-# Plot 2: 
+# Plot 1: Colormap of \phi on a 2d slice at specified time slices
+# Plot 2: Colormap of \dot{\phi} on a 2d slice at specified time slices
 # Plot 3: 
 
 # to do: 
@@ -79,22 +79,29 @@ phi_i = 9; dphi_i = 10; chi_i = 11; dchi_i = 12
 # Calc H, \dot{\phi}
 en_bl[:,hub_i] = np.sqrt(-en_bl[:,hub_i]/3.)
 
+# Time slices
+t_slice = [0,0,0,0]  # indicies to show slices
+
 # Make plots
 nfig = 0
 
-# Plot 1: Colormap of a real-space slice of \phi
+# Plot 1: Colormap of \phi on a 2d slice at specified time slices
 nfig += 1
-fig, ax = plt.subplots(nrows=1 , ncols=1 , sharex=False)
+nr = 1; nc = 4  # number of subplot rows and columns
+fig, ax = plt.subplots(nrows=nr , ncols=nc , sharex=False)
 f_title = r'$\delta\phi$ Realspace Slice'
 s_title = ['','']
 x_lab = [r'$\mathrm{ln}(a)$', r'$\bar{\phi}M_{Pl}^{-1}$']
 y_lab = [r'$\delta\phi M_{Pl}^{-1}$', r'$\delta\phi M_{Pl}^{-1}$']
 fig.suptitle(f_title, fontsize = title_fs)
 
-f_slice = ax.imshow(phi_bl[0,:,:,7]-en_bl[0*sl,phi_i], cmap='viridis', aspect='equal', origin='lower')
-ax.plot([0,1./(dx*en_bl[0,a_i]*en_bl[0,hub_i])],[0,0], c='w')
-ax.annotate(r'$(aH)^{-1}$',(0,0+0.01*nx), color='w', fontsize=anno_fs)
-ax.set_yticks([]); ax.set_xticks([])
-fig.colorbar(f_slice)
+for i in range(0,nc):
+	f_slice = ax[i].imshow(phi_bl[0,:,:,7]-en_bl[0*sl,phi_i], cmap='viridis', aspect='equal', origin='lower')
+	ax[i].plot([0,1./(dx*en_bl[0,a_i]*en_bl[0,hub_i])],[0,0], c='w')
+	ax[i].annotate(r'$(aH)^{-1}$',(0,0+0.01*nx), color='w', fontsize=anno_fs)
+	ax[i].set_yticks([]); ax[i].set_xticks([])
+cax = fig.add_axes([])
+fig.colorbar(f_slice, cax=cax)
 
+#fig.set_tight_layout(True)
 plt.show()
