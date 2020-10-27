@@ -1,10 +1,15 @@
 # fld_traj_zeta_condition.py
 
 # Script to plot field and momentum trajectories conditioned on \zeta.
-# Plot 1: 
+# Plot 1: Field and momentum trajectory contour plots (contoured by \Delta\zeta_{end}) binned by \Delta\zeta_{end} 
+#         with sample trajectories vs \alpha
+# Plot 2: Field and momentum trajectory contour plots binned by \Delta\zeta_{end} with sample trajectories vs \alpha
 
-# to do: plot sampled trajectories for each bin
+# to do: plot sampled trajectories for each bin, top, bottom, evenly spaced samples
 # to do: bin positive and negatice \chi separately
+# to do: sharex and remove redundant axis labels and ticks
+
+# to do: apply cut (use argwhere), sort zeta on cut data, 
 
 # Testing notes:
 
@@ -25,13 +30,17 @@ zeta_bl, zeta = load_zeta()
 print('np.shape(phi_bl) = ', np.shape(phi_bl))
 print('np.shape(phi) = ', np.shape(phi))
 
+# Apply cuts on \chi
+
 # Sort data by \Delta\zeta_{end}
 Dz_sort = np.sort((zeta[0]-zeta_bl)[-1,:],axis=-1)    # making this for baseline + one run
 Dz_sort_i = np.argsort((zeta[0]-zeta_bl)[-1,:],axis=-1)  # making this for baseline + one run
 
+# Sort data by \Delta\zeta_
+
 # Define trajectory bins, bin by \Delta\zeta_{end}
 sig_Dz = np.std((zeta-zeta_bl)[0,-1,:], ddof=-1)   # \Delta\zeta_{end} std
-traj_bins = np.array([-6,-4,-2,0])*sig_Dz             # trajector bin edges in terms of std of \Delta\zeta
+traj_bins = np.array([-4,3])*sig_Dz             # trajector bin edges in terms of std of \Delta\zeta
 traj_bins_i = np.zeros(len(traj_bins)+2, dtype=np.int64)
 traj_bins_i[-1] = nlat-1                          # outside bin edge
 traj_bins_i[1:-1] = np.searchsorted(Dz_sort, traj_bins) # array of indices in Dz_sort_i that correspond to the bins in traj_bins
@@ -59,11 +68,16 @@ if (chi_bl_f != ''):
 	dchi_cz = np.zeros((len(traj_bins)+1, len(cont), nl))         # Formatted [bin, contour, time]
 	Delta_chi_cz = np.zeros((len(traj_bins)+1, len(cont), nl))    # Formatted [bin, contour, time]
 	Delta_dchi_cz = np.zeros((len(traj_bins)+1, len(cont), nl))   # Formatted [bin, contour, time]
+	Delta_chi_cpn = np.zeros((2, len(traj_bins)+1, len(cont), nl))  # Formatted [fld, bin, contour, time], for positive/negative \chi trajectories
+	Delta_dchi_cpn = np.zeros((2, len(traj_bins)+1, len(cont), nl))  # Formatted [fld, bin, contour, time], for positive/negative \Pi_\chi trajectories
 
 print('np.shape(phi_bl_cz) = ', np.shape(phi_bl_cz))
 print('np.shape(Delta_fld_c) = ', np.shape(Delta_fld_c))
 
 # Find bin contours
+# to do: choose a time slice to cut \chi and \Pi_\chi into positive and negative branches
+# to do: divide Dz_sort_i into an array for positve \chi and an array for negative \chi
+# to do: divede trajectories based on positive or negative \chi, then bin based on \zeta_{end}
 for j in range(1,len(traj_bins_i)):
 	k = np.mod(traj_bins_i[j], nlat)-np.mod(traj_bins_i[j-1], nlat)           # number of trajectories in bin
 	print('j, np.mod(traj_bins_i[j-1],nlat), np.mod(traj_bins_i[j],nlat) =', j, np.mod(traj_bins_i[j-1],nlat), np.mod(traj_bins_i[j],nlat))
@@ -135,15 +149,15 @@ for j in range(0,len(traj_bins)+1):
 nfig += 1
 print('In plot: ', nfig)
 nr = 4; nc =1
-fig, ax = plt.subplots(nrows=4 , ncols=1 , sharex=False)
+fig, ax = plt.subplots(nrows=4 , ncols=1 , sharex=True)
 f_title = r'Trajectories Binned by $\Delta\zeta_{\mathrm{end}}$'
 s_title = [r'',r'']
 x_lab = [r'$\mathrm{ln}(a)$', r'$\mathrm{ln}(a)$', r'$\mathrm{ln}(a)$', r'$\mathrm{ln}(a)$']
 y_lab = [r'$\Delta\phi$', r'$\Delta\Pi_\phi$',r'$\Delta\chi$', r'$\Delta\Pi_\chi$']
 fig.suptitle(f_title, fontsize = title_fs)
 for i in range(0,nr):
-	ax[i].set_xlabel(x_lab[i])
 	ax[i].set_ylabel(y_lab[i])
+ax[-1].set_xlabel(x_lab[-1])
 
 # loop over bins
 for j in range(0,len(traj_bins)+1):
@@ -151,6 +165,21 @@ for j in range(0,len(traj_bins)+1):
 		for k in range(0,nfld):
 			ax[2*k].fill_between(np.log(en[0,::sl,a_i]), (Delta_fld_c[k,j,i,:]).T, (Delta_fld_c[k,j,-1-i,:]).T, alpha=0.25, color=c_ar[j%len(c_ar)])
 			ax[2*k+1].fill_between(np.log(en[0,::sl,a_i]), (Delta_dfld_c[k,j,i,:]).T, (Delta_dfld_c[k,j,-1-i,:]).T, alpha=0.25, color=c_ar[j%len(c_ar)])
+		# Plot bounding trajectories
+for j in [0,2]:
+	n_traj = traj_bins_i[j+1] - traj_bins_i[j]           # number of trajectories in bin
+	ind_u = Dz_sort_i[traj_bins_i[j+1]]
+	ind_l = Dz_sort_i[traj_bins_i[j]]
+	print('ind_u, ind_l = ', ind_u, ind_l)
+	ax[0].plot(np.log(en[0,::sl,a_i]), phi[0,:,ind_u]-phi_bl[:,ind_u], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[0].plot(np.log(en[0,::sl,a_i]), phi[0,:,ind_l]-phi_bl[:,ind_l], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[1].plot(np.log(en[0,::sl,a_i]), dphi[0,:,ind_u]-dphi_bl[:,ind_u], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[1].plot(np.log(en[0,::sl,a_i]), dphi[0,:,ind_l]-dphi_bl[:,ind_l], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[2].plot(np.log(en[0,::sl,a_i]), chi[0,:,ind_u]-chi_bl[:,ind_u], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[2].plot(np.log(en[0,::sl,a_i]), chi[0,:,ind_l]-chi_bl[:,ind_l], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[3].plot(np.log(en[0,::sl,a_i]), dchi[0,:,ind_u]-dchi_bl[:,ind_u], alpha=0.75, color=c_ar[j%len(c_ar)])
+	ax[3].plot(np.log(en[0,::sl,a_i]), dchi[0,:,ind_l]-dchi_bl[:,ind_l], alpha=0.75, color=c_ar[j%len(c_ar)])
+			# Plot sampled trajectories
 	# Plot sample trajectories for bin
 	#ax[0].plot(np.log(en[0,::sl,a_i]),)
 
