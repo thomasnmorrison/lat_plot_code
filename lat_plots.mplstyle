@@ -1,0 +1,24 @@
+# lat_plots.mplstyle
+
+# Style file for plots
+
+# Font
+font.size: 10.
+
+# LaTeX
+text.usetex: True
+
+# Axes
+axes.titlesize: 12
+axes.titlepad: 16
+axes.labelsize: 14
+axes.xmargin: 0.
+axes.grid: True
+axes.axisbelow: True
+axes.formatter.limits: -1, 1
+
+# Legend
+legend.fontsize: 6
+
+# Figure
+figure.titlesize: 18

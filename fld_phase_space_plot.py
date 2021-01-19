@@ -5,151 +5,242 @@
 # Plot 2: 2d histograms of time slices of \phi \Pi_\phi space
 # Plot 3: Contour plots of time slices of \phi \Pi_\phi space
 
+# to do: set ticks
+# to do: set labels
+# to do: transpose hist while plotting
+# to do: make a video for these
+
+
 # Import packages
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as stats
+import mpl_toolkits.axes_grid1 as axg
+from plot_param import *
 
-# File names and paths
-path_n = '../lattice-dev-master/Pseudospec/openmp_dev/'
-en_bl_f = 'energy_spec_TESTING_.out' # Baseline run lattice averaged quantities
-en_f = [] # lattice averaged quatities
-phi_bl_f = 'phi_lat_TESTING_.out'
-phi_f = []
-dphi_bl_f = 'dphi_lat_TESTING_.out'
-dphi_f = []
-chi_bl_f = 'chi_lat_TESTING_.out'
-chi_f = []
-dchi_bl_f = 'dchi_lat_TESTING_.out'
-dchi_f = []
+# Set style
+plt.style.use('./lat_plots.mplstyle')
 
-# Run parameters
-nx = 8; ny = 8; nz = 8
-sl = 2**2 # steplat
-ds = 2**3 # down sampling of lattice to plot
-
-# Configuration parameters
-SAVE_FIG = [False, False, False]
-SCALE_FIG = [False, False, False]
-FIG_SIZE = (3.50, 2.16)
-WATER_MARK = [False, False, False]
-
-title_fs = 20
-stitle_fs = 14
-x_lab_fs = 14; y_lab_fs = 14
-
-# Plot output file names
+# Save figs
+SAVE_FIGS = False
+SHOW_FIGS = True
 
 # Read in data
-en_bl = np.loadtxt(path_n+en_bl_f)
-phi_bl = np.fromfile(path_n+phi_bl_f, dtype=np.double , count=-1)
-dphi_bl = np.fromfile(path_n+dphi_bl_f, dtype=np.double , count=-1)
-en = np.zeros((np.shape(en_f) + np.shape(en_bl)))
-phi = np.zeros((np.shape(phi_f) + np.shape(phi_bl)))
-dphi = np.zeros((np.shape(dphi_f) + np.shape(dphi_bl)))
+en_bl, en = load_energy()
+phi_bl, dphi_bl, chi_bl, dchi_bl, phi, dphi, chi, dchi = load_fld()
+zeta_bl, zeta = load_zeta()
 
-for i in range(0,len(en_f)):
-	en[i] = np.fromfile(path_n+en_f[i], dtype=np.double , count=-1)
-	phi[i] = np.fromfile(path_n+phi_f[i], dtype=np.double , count=-1)
+fld = [[phi_bl, chi_bl],[phi[0],chi[0]]]; fld = np.array(fld)
+dfld = [[dphi_bl, dchi_bl],[dphi[0],dchi[0]]]; dfld = np.array(dfld)
+fld0 = [[en_bl[::sl, phi_i],en_bl[::sl, chi_i]],[en[0,::sl, phi_i],en[0,::sl, chi_i]]]; fld0 = np.array(fld0)
+dfld0 = [[en_bl[::sl, dphi_i],en_bl[::sl, dchi_i]],[en[0,::sl, dphi_i],en[0,::sl, dchi_i]]]; dfld0 = np.array(dfld0)
+f1_bl_i = [0,0]; f2_bl_i = [0,1]; f1_i = [1,0]; f2_i = [1,1]
+fld_i = np.array([f1_bl_i, f2_bl_i, f1_i, f2_i])
 
-if (chi_bl_f != ''):
-	chi_bl = np.fromfile(path_n+chi_bl_f, dtype=np.double , count=-1)
-	dchi_bl = np.fromfile(path_n+dchi_bl_f, dtype=np.double , count=-1)
-	chi = np.zeros((np.shape(chi_f) + np.shape(chi_bl)))
-	dchi = np.zeros((np.shape(dchi_f) + np.shape(chi_bl)))
-	for i in range(0,len(en_f)):
-		chi[i] = np.fromfile(path_n+chi_f[i], dtype=np.double , count=-1)
-		dchi[i] = np.fromfile(path_n+dchi_f[i], dtype=np.double , count=-1)
+n_bins = 128
 
-# Reshape lattice data
-print('np.shape(phi_bl) = ', np.shape(phi_bl))
-nlat = nx*ny*nz
-t =  int(len(en_bl[:,0]-1)/sl) + 1
-print('t = ', t)
-phi_bl = np.resize(phi_bl,(t,nlat)); phi_bl = phi_bl.transpose()       # Formatted [lat site, time]
-dphi_bl = np.resize(dphi_bl,(t,nlat)); dphi_bl = dphi_bl.transpose()   # Formatted [lat site, time]
-if (chi_bl_f != ''):
-	chi_bl = np.resize(chi_bl,(t,nlat)); chi_bl = chi_bl.transpose()     # Formatted [lat site, time]
-	dchi_bl = np.resize(dchi_bl,(t,nlat)); dchi_bl = dchi_bl.transpose() # Formatted [lat site, time]
+# Slices
+t_i = np.zeros(5,np.int64)  # time indicies of slices to show
+t_i[1] = np.argmin(np.absolute(fld0[f1_i[0],f1_i[1]] - (phi_p + phi_w)))
+t_i[2] = np.argmin(np.absolute(fld0[f1_i[0],f1_i[1]] - (phi_p)))
+t_i[3] = np.argmin(np.absolute(fld0[f1_i[0],f1_i[1]] - (phi_p - phi_w)))
+t_i[-1] = -1
 
-print('np.shape(phi_bl) = ', np.shape(phi_bl))
-#print('phi_bl[:,1] = ', phi_bl[:,1])
-
-
-# Indexing constants
-a_i = 1; rho_i = 2; rhoK_i = 3; rhoP_i = 4; rhoG_i = 5; hub_i = 8
-phi_i = 9; dphi_i = 10; chi_i = 11; dchi_i = 12
-
-
+t_i = np.zeros(6,np.int64)  # time indicies of slices to show
+t_i[0] = 40
+t_i[1] = 45
+t_i[2] = 50
+t_i[3] = 55
+t_i[4] = 60
+t_i[-1] = -1
 
 # Make plots
 nfig = 0
 
-# Plot 1: Trajectories through the \phi \Pi_\phi space
+# Plot 1: Histograms of (\delta\phi_A, \delta\Pi_\phi)
 nfig += 1
-t = 0
-nbins = 25
-fig, ax = plt.subplots(nrows=1 , ncols=1 , sharex=False)
-f_title = r'$\delta\phi\text{ vs }\delta\Pi_\phi$'
+nr = 1; nc = len(t_i)  # number of subplot rows and columns
+fig = plt.figure(nfig)
+f_title = r''
 s_title = ['','']
 x_lab = [r'']
 y_lab = [r'']
+c_lab = [r'']
+fig.suptitle(f_title)
+#fig.set_figheight(4.8/2)
 
-f1 = phi_bl[:,:]-en_bl[::sl,phi_i]
-f2 = dphi_bl[:,:]-en_bl[::sl,dphi_i]
-ax.plot(f1[:,:].T, f2[:,:].T)
+for j in range(0,nfld):
+	vf_m = np.min(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-fld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vf_p = np.max(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-fld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+	vdf_m = np.min(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-dfld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vdf_p = np.max(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-dfld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+	ax = axg.ImageGrid(fig, 211+j, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+	for i in range(0,nc):
+		hist, xe, ye = np.histogram2d(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-fld0[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]], dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-dfld0[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+		f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
 
-
-# Plot 2: 2d histogram of \phi and \Pi_\phi
-# to do: Make 2d histogram of \phi \Pi_\phi slice of phase space
-# to do: Sub plots of \phi-\Pi_\phi, \chi-\Pi_\chi, \phi-\chi, \Pi_\phi-\Pi_\chi, 
-# to do: Make contour plot of of 2d histogram
-# to do: Make this into an animation over time slices
-
+# Plot 2: Histograms of (\Delta\phi_A, \Delta\Pi_\phi)
 nfig += 1
-t = 0
-nbins = 25
-fig, ax = plt.subplots(nrows=1 , ncols=1 , sharex=False)
-f_title = r'$\phi-\bar{\phi}$'
+nr = 1; nc = len(t_i)  # number of subplot rows and columns
+fig = plt.figure(nfig)
+f_title = r''
 s_title = ['','']
-x_lab = [r'$\mathrm{ln}(a)$', r'$\bar{\phi}M_{Pl}^{-1}$']
-y_lab = [r'$\delta\phi M_{Pl}^{-1}$', r'$\delta\phi M_{Pl}^{-1}$']
-f1 = phi_bl[:,:]-en_bl[::sl,phi_i]
-f2 = dphi_bl[:,:]-en_bl[::sl,dphi_i]
-ax.hist2d(f1[:,t], f2[:,t], bins=nbins)
+x_lab = [r'']
+y_lab = [r'']
+c_lab = [r'']
+fig.suptitle(f_title)
+#fig.set_figheight(4.8/2)
 
-# Plot 3: contour plot of \phi and \Phi_\phi
-# to do: this plot relies on Plot 1 as written, I can use np.hist2d to fix that
-# to do: fix centering
+for j in range(0,nfld):
+	vf_m = np.min(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-fld[fld_i[j,0],fld_i[j,1],:])
+	vf_p = np.max(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-fld[fld_i[j,0],fld_i[j,1],:])
+	vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+	vdf_m = np.min(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-dfld[fld_i[j,0],fld_i[j,1],:])
+	vdf_p = np.max(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-dfld[fld_i[j,0],fld_i[j,1],:])
+	vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+	ax = axg.ImageGrid(fig, 211+j, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+	for i in range(0,nc):
+		hist, xe, ye = np.histogram2d(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-fld[fld_i[j,0],fld_i[j,1],t_i[i]], dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-dfld[fld_i[j,0],fld_i[j,1],t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+		f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+
+# Plot 3: Histograms of (\delta\phi_A, \delta\phi_B), (\delta\Pi_\phi_A, \delta\Pi_\phi_B)
 nfig += 1
-t = 0
-nbins = 15
-fig, ax = plt.subplots(nrows=1 , ncols=1 , sharex=False)
-f_title = r'$\phi-\bar{\phi}$'
+nr = 1; nc = len(t_i)  # number of subplot rows and columns
+fig = plt.figure(nfig)
+f_title = r''
 s_title = ['','']
-x_lab = [r'$\mathrm{ln}(a)$', r'$\bar{\phi}M_{Pl}^{-1}$']
-y_lab = [r'$\delta\phi M_{Pl}^{-1}$', r'$\delta\phi M_{Pl}^{-1}$']
-h, xbin, ybin = np.histogram2d(f1[:,t], f2[:,t], bins=nbins)
-xbin_c = (xbin[:-1]+xbin[1:])/2.; ybin_c = (ybin[:-1]+ybin[1:])/2.
-ax.contour(xbin_c, ybin_c, h, levels=np.arange(0,50,3))
+x_lab = [r'']
+y_lab = [r'']
+c_lab = [r'']
+fig.suptitle(f_title)
+#fig.set_figheight(4.8/2)
+# 
+vf_m = np.min(fld[fld_i[nfld,0],fld_i[nfld,1],:].T-fld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vf_p = np.max(fld[fld_i[nfld,0],fld_i[nfld,1],:].T-fld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+vdf_m = np.min(fld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-fld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vdf_p = np.max(fld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-fld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+ax = axg.ImageGrid(fig, 211, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+for i in range(0,nc):
+	hist, xe, ye = np.histogram2d(fld[fld_i[nfld,0],fld_i[nfld,1],t_i[i]]-fld0[fld_i[nfld,0],fld_i[nfld,1],t_i[i]], fld[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]]-fld0[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+	f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+# 
+vf_m = np.min(dfld[fld_i[nfld,0],fld_i[nfld,1],:].T-dfld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vf_p = np.max(dfld[fld_i[nfld,0],fld_i[nfld,1],:].T-dfld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+vdf_m = np.min(dfld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-dfld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vdf_p = np.max(dfld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-dfld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+ax = axg.ImageGrid(fig, 211+1, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+for i in range(0,nc):
+	hist, xe, ye = np.histogram2d(dfld[fld_i[nfld,0],fld_i[nfld,1],t_i[i]]-dfld0[fld_i[nfld,0],fld_i[nfld,1],t_i[i]], dfld[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]]-dfld0[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+	f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
 
-if (chi_bl_f != ''):
-# Plot 4: 2d histogram of \chi and \Pi_\chi
-	nfig += 1
-	t = 0
-	nbins = 25
-	fig, ax = plt.subplots(nrows=1 , ncols=1 , sharex=False)
-	f_title = r'$\chi, \Pi_\chi$ Density'
-	s_title = ['','']
-	x_lab = [r'$\chi M_{Pl}^{-1}$']
-	y_lab = [r'$\Pi_\chi (m_\phi M_{Pl})^{-1}$']
-	fig.suptitle(f_title, fontsize = title_fs)
-	ax.set_xlabel(x_lab[0], fontsize = x_lab_fs)
-	ax.set_ylabel(y_lab[0], fontsize = y_lab_fs)
-	ax.ticklabel_format(axis='y', style='scientific', scilimits=(0,0))
-	f1 = chi_bl[:,:]#-en_bl[::sl,chi_i]
-	f2 = dchi_bl[:,:]#-en_bl[::sl,dchi_i]
-	ax.hist2d(f1[:,t], f2[:,t], bins=nbins)
+# Plot 4: Histograms of (\delta\phi_A, \delta\Pi_\phi_B)
+nfig += 1
+nr = 1; nc = len(t_i)  # number of subplot rows and columns
+fig = plt.figure(nfig)
+f_title = r''
+s_title = ['','']
+x_lab = [r'']
+y_lab = [r'']
+c_lab = [r'']
+fig.suptitle(f_title)
+# 
+vf_m = np.min(fld[fld_i[nfld,0],fld_i[nfld,1],:].T-fld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vf_p = np.max(fld[fld_i[nfld,0],fld_i[nfld,1],:].T-fld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+vdf_m = np.min(dfld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-dfld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vdf_p = np.max(dfld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-dfld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+ax = axg.ImageGrid(fig, 211, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+for i in range(0,nc):
+	hist, xe, ye = np.histogram2d(fld[fld_i[nfld,0],fld_i[nfld,1],t_i[i]]-fld0[fld_i[nfld,0],fld_i[nfld,1],t_i[i]], dfld[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]]-dfld0[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+	f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+# 
+vf_m = np.min(fld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-fld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vf_p = np.max(fld[fld_i[nfld+1,0],fld_i[nfld+1,1],:].T-fld0[fld_i[nfld+1,0],fld_i[nfld+1,1],:])
+vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+vdf_m = np.min(dfld[fld_i[nfld,0],fld_i[nfld,1],:].T-dfld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vdf_p = np.max(dfld[fld_i[nfld,0],fld_i[nfld,1],:].T-dfld0[fld_i[nfld,0],fld_i[nfld,1],:])
+vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+ax = axg.ImageGrid(fig, 211+1, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+for i in range(0,nc):
+	hist, xe, ye = np.histogram2d(fld[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]]-fld0[fld_i[nfld+1,0],fld_i[nfld+1,1],t_i[i]], dfld[fld_i[nfld,0],fld_i[nfld,1],t_i[i]]-dfld0[fld_i[nfld,0],fld_i[nfld,1],t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+	f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
 
+# Plot 5: Histograms of (\delta\phi_A, \Delta\zeta), (\delta\Pi_\phi_A, \Delta\zeta)
+nfig += 1
+nr = 1; nc = len(t_i)  # number of subplot rows and columns
+fig = plt.figure(nfig)
+f_title = r''
+s_title = ['','']
+x_lab = [r'']
+y_lab = [r'']
+c_lab = [r'']
+fig.suptitle(f_title)
+#fig.set_figheight(4.8/2)
 
-# Plot 4:
-plt.show()
+for j in range(0,nfld):
+	vf_m = np.min(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-fld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vf_p = np.max(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-fld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+	vdf_m = np.min(zeta[0]-zeta_bl)
+	vdf_p = np.max(zeta[0]-zeta_bl)
+	vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+	ax = axg.ImageGrid(fig, 411+2*j, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+	for i in range(0,nc):
+		hist, xe, ye = np.histogram2d(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-fld0[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]], zeta[0,t_i[i]]-zeta_bl[t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+		f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+	vf_m = np.min(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-dfld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vf_p = np.max(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:].T-dfld0[fld_i[nfld+j,0],fld_i[nfld+j,1],:])
+	vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+	vdf_m = np.min(zeta[0]-zeta_bl)
+	vdf_p = np.max(zeta[0]-zeta_bl)
+	vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+	ax = axg.ImageGrid(fig, 411+2*j+1, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+	for i in range(0,nc):
+		hist, xe, ye = np.histogram2d(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-dfld0[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]], zeta[0,t_i[i]]-zeta_bl[t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+		f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+
+# Plot 6: Histograms of (\Delta\phi_A, \Delta\zeta), (\Delta\Pi_\phi_A, \Delta\zeta)
+nfig += 1
+nr = 1; nc = len(t_i)  # number of subplot rows and columns
+fig = plt.figure(nfig)
+f_title = r''
+s_title = ['','']
+x_lab = [r'']
+y_lab = [r'']
+c_lab = [r'']
+fig.suptitle(f_title)
+#fig.set_figheight(4.8/2)
+
+for j in range(0,nfld):
+	vf_m = np.min(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-fld[fld_i[j,0],fld_i[j,1],:])
+	vf_p = np.max(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-fld[fld_i[j,0],fld_i[j,1],:])
+	vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+	vdf_m = np.min(zeta[0]-zeta_bl)
+	vdf_p = np.max(zeta[0]-zeta_bl)
+	vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+	ax = axg.ImageGrid(fig, 411+2*j, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+	for i in range(0,nc):
+		hist, xe, ye = np.histogram2d(fld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-fld[fld_i[j,0],fld_i[j,1],t_i[i]], zeta[0,t_i[i]]-zeta_bl[t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+		f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+	vdf_m = np.min(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-dfld[fld_i[j,0],fld_i[j,1],:])
+	vdf_p = np.max(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],:]-dfld[fld_i[j,0],fld_i[j,1],:])
+	vf = [-np.max([np.absolute(vf_m),np.absolute(vf_p)]),np.max([np.absolute(vf_m),np.absolute(vf_p)])]
+	vdf_m = np.min(zeta[0]-zeta_bl)
+	vdf_p = np.max(zeta[0]-zeta_bl)
+	vdf = [-np.max([np.absolute(vdf_m),np.absolute(vdf_p)]),np.max([np.absolute(vdf_m),np.absolute(vdf_p)])]
+	ax = axg.ImageGrid(fig, 411+2*j+1, nrows_ncols=(nr,nc), axes_pad=0.05, cbar_location='right', cbar_mode='single')
+	for i in range(0,nc):
+		hist, xe, ye = np.histogram2d(dfld[fld_i[nfld+j,0],fld_i[nfld+j,1],t_i[i]]-dfld[fld_i[j,0],fld_i[j,1],t_i[i]], zeta[0,t_i[i]]-zeta_bl[t_i[i]], bins=n_bins, range=[vf,vdf], density=True)
+		f_slice = ax[i].imshow(hist, cmap='viridis', aspect='equal', origin='lower')#, vmin=v[0], vmax=v[1])
+
+# Plot 7: test of x,y axis
+
+if SHOW_FIGS:
+	plt.show()
