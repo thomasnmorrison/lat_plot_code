@@ -1,7 +1,7 @@
 # fld_trajectory_plot.py
 
 # Script to plot the field and field momentum trajectories
-# Plot 1: \delta\phi clocked on \phi, \delta\phi clocked on \alpha 
+# Plot 1: \delta\phi clocked on \alpha, \Delta\phi clocked on \alpha 
 # Plot 2: \delta\Pi_phi clocked on \phi, \delta\Pi_\phi clocked on \alpha 
 # Plot 3: \delta\chi clocked on \phi, \delta\chi clocked on \alpha
 # Plot 4: \delta\Pi_phi clocked on \phi, \delta\Pi_\phi clocked on \alpha
@@ -105,17 +105,18 @@ ax[0].plot(np.log(en_bl[::sl,a_i]), delta_f.T)
 for i in range(0,len(phi_f)):
         ax[0].plot(np.log(en[i,::s,a_i]), (phi[i,:,:]-en[i,::sl,phi_i]).T)
         ax[1].plot(np.log(en_bl[::sl,a_i]), (phi[i,:,:]-phi_bl[:,:]).T)
-
+fig.set_tight_layout(True)
+        
 if (SCALE_FIG == True):
 	fig.set_size_inches(FIG_SIZE)
 if (SAVE_FIG[nfig-1] == True):
 	fig.savefig()
         
-# Plot 2: \delta\dot{\phi} clocked on \alpha, \Delta\Pi_\phi clocked on \alpha 
+# Plot 2: \delta\dot{\phi} clocked on \alpha, \Delta\dot{\phi} clocked on \alpha 
 nfig += 1
 fig, ax = plt.subplots(nrows=2 , ncols=1 , sharex=False)
 f_title = r'$\phi-\bar{\phi}$'
-s_title = [r'$\phi-\bar{\phi}$', r'$\phi-\bar{\phi}$']
+s_title = [r'$\delta\phi$', r'$\Delta\phi$']
 x_lab = [r'$\mathrm{ln}(a)$', r'$\mathrm{ln}(a)$']
 y_lab = [r'$\delta\dot{\phi} m_\phi^{-1}M_{Pl}^{-1}$', r'$\delta\dot{\phi} m_\phi^{-1}M_{Pl}^{-1}$']
 fig.suptitle(f_title, fontsize = title_fs)
@@ -128,10 +129,10 @@ delta_f = (dphi_bl[:,:]-en_bl[::sl,dphi_i])/en_bl[::sl,a_i]**3
 delta_f = delta_f.transpose() # Formatted [time, lat site]
 ax[0].plot(np.log(en_bl[::sl,a_i]), delta_f)
 for i in range(0,len(dphi_f)):
-        ax[0].plot(np.log(en[i,::sl,a_i]), (dphi[i,:,:]-en[i,::sl,dphi_i]).T/en[i,::sl,a_i]**3)
-ax[1].plot(en_bl[::sl,phi_i], delta_f)
-ax[1].invert_xaxis()
-
+        ax[0].plot(np.log(en[i,::sl,a_i]), ((dphi[i,:,:]-en[i,::sl,dphi_i])/en[i,::sl,a_i]**3).T)
+        ax[1].plot(np.log(en_bl[::sl,a_i]), (dphi[i,:,:]/en[i,::sl,a_i]**3 - dphi_bl[:,:]/en_bl[::sl,a_i]).T)
+fig.set_tight_layout(True)
+        
 if (SCALE_FIG == True):
 	fig.set_size_inches(FIG_SIZE)
 if (SAVE_FIG[nfig-1] == True):
