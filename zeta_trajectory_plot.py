@@ -1,8 +1,9 @@
 # zeta_trajectory_plot.py
 
 # Script to plot \zeta and \zeta_{part} trajectories
-# Plot 1: ln(a) vs \zeta
-# Plot 2:
+# Plot 1: a) Baseline \zeta vs \alpha trajectories
+#         b) \zeta vs \alpha trajectories
+# Plot 2: \Delta\zeta vs \alpha trajectories
 
 # to do: \zeta_{part} plots
 
@@ -12,15 +13,15 @@ import matplotlib.pyplot as plt
 
 # File names and paths
 path_n = '../lattice-dev-master/Pseudospec/openmp_dev/'
-en_bl_f = 'energy_spec_TESTING_.out' # Baseline run lattice averaged quantities
-en_f = ['energy_spec_TESTING_.out'] # lattice averaged quatities
-zeta_bl_f = 'zeta_lat_TESTING_.out'
-zeta_f = ['zeta_lat_TESTING_.out']
+en_bl_f = 'energy_spec_TESTING32_Z_.out' # Baseline run lattice averaged quantities
+en_f = ['energy_spec_TESTING32_ZDV_.out'] # lattice averaged quatities
+zeta_bl_f = 'zeta_lat_TESTING32_Z_.out'
+zeta_f = ['zeta_lat_TESTING32_ZDV_.out']
 
 # Run parameters
-nx = 8; ny = 8; nz = 8
+nx = 32; ny = 32; nz = 32
 sl = 2**2 # steplat
-ds = 2**3 # down sampling of lattice to plot
+ds = 2**8 # down sampling of lattice to plot
 
 # Configuration parameters
 SAVE_FIG = [False, False, False, False]

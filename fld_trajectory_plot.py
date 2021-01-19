@@ -14,21 +14,21 @@ import matplotlib.pyplot as plt
 
 # File names and paths
 path_n = '../lattice-dev-master/Pseudospec/openmp_dev/'
-en_bl_f = 'energy_spec_TESTING_.out' # Baseline run lattice averaged quantities
-en_f = ['energy_spec_TESTING_.out'] # lattice averaged quatities
-phi_bl_f = 'phi_lat_TESTING_.out'
-phi_f = ['phi_lat_TESTING_.out']
-dphi_bl_f = 'dphi_lat_TESTING_.out'
-dphi_f = ['dphi_lat_TESTING_.out']
-chi_bl_f = 'chi_lat_TESTING_.out'
-chi_f = ['chi_lat_TESTING_.out']
-dchi_bl_f = 'dchi_lat_TESTING_.out'
-dchi_f = ['dchi_lat_TESTING_.out']
+en_bl_f = 'energy_spec_TESTING32_.out' # Baseline run lattice averaged quantities
+en_f = ['energy_spec_TESTING32_DV_.out'] # lattice averaged quatities
+phi_bl_f = 'phi_lat_TESTING32_.out'
+phi_f = ['phi_lat_TESTING32_DV_.out']
+dphi_bl_f = 'dphi_lat_TESTING32_.out'
+dphi_f = ['dphi_lat_TESTING32_DV_.out']
+chi_bl_f = 'chi_lat_TESTING32_.out'
+chi_f = ['chi_lat_TESTING32_DV_.out']
+dchi_bl_f = 'dchi_lat_TESTING32_.out'
+dchi_f = ['dchi_lat_TESTING32_DV_.out']
 
 # Run parameters
-nx = 8; ny = 8; nz = 8
+nx = 32; ny = 32; nz = 32
 sl = 2**2 # steplat
-ds = 2**3 # down sampling of lattice to plot
+ds = 2**6 # down sampling of lattice to plot
 
 # Configuration parameters
 SAVE_FIG = [False, False, False, False]
@@ -101,6 +101,7 @@ nfig = 0
 
 # Plot 1: \delta\phi clocked on \alpha, \Delta\phi clocked on \alpha
 nfig += 1
+print('In plot: ', nfig)
 fig, ax = plt.subplots(nrows=2 , ncols=1 , sharex=False)
 f_title = r'$\phi-\bar{\phi}$'
 s_title = [r'$\delta\phi$',r'$\Delta\phi$']
@@ -115,8 +116,8 @@ for i in range(0,2):
 
 ax[0].plot(np.log(en_bl[::sl,a_i]), (phi_bl[:,:]-en_bl[::sl,phi_i]).T)
 for i in range(0,len(phi_f)):
-        ax[0].plot(np.log(en[i,::sl,a_i]), (phi[i,:,:]-en[i,::sl,phi_i]).T)
-        ax[1].plot(np.log(en_bl[::sl,a_i]), (phi[i,:,:]-phi_bl[:,:]).T)
+        ax[0].plot(np.log(en[i,::sl,a_i]), (phi[i,::ds,:]-en[i,::sl,phi_i]).T)
+        ax[1].plot(np.log(en_bl[::sl,a_i]), (phi[i,::ds,:]-phi_bl[::ds,:]).T)
 
 fig.set_tight_layout(True)
 if (SCALE_FIG == True):
@@ -126,6 +127,7 @@ if (SAVE_FIG[nfig-1] == True):
         
 # Plot 2: \delta\dot{\phi} clocked on \alpha, \Delta\dot{\phi} clocked on \alpha 
 nfig += 1
+print('In plot: ', nfig)
 fig, ax = plt.subplots(nrows=2 , ncols=1 , sharex=False)
 f_title = r'$\phi-\bar{\phi}$'
 s_title = [r'$\delta\dot{\phi}$', r'$\Delta\dot{\phi}$']
@@ -138,10 +140,10 @@ for i in range(0,2):
 	ax[i].set_ylabel(y_lab[i], fontsize = y_lab_fs)
 	ax[i].ticklabel_format(axis='y', style='scientific', scilimits=(0,0))
 
-ax[0].plot(np.log(en_bl[::sl,a_i]), ((dphi_bl[:,:]-en_bl[::sl,dphi_i])/en_bl[::sl,a_i]**3).T)
+ax[0].plot(np.log(en_bl[::sl,a_i]), ((dphi_bl[::ds,:]-en_bl[::sl,dphi_i])/en_bl[::sl,a_i]**3).T)
 for i in range(0,len(dphi_f)):
-	ax[0].plot(np.log(en[i,::sl,a_i]), ((dphi[i,:,:]-en[i,::sl,dphi_i])/en[i,::sl,a_i]**3).T)
-	ax[1].plot(np.log(en_bl[::sl,a_i]), (dphi[i,:,:]/en[i,::sl,a_i]**3-dphi_bl[:,:]/en_bl[::sl,a_i]**3).T)
+	ax[0].plot(np.log(en[i,::sl,a_i]), ((dphi[i,::ds,:]-en[i,::sl,dphi_i])/en[i,::sl,a_i]**3).T)
+	ax[1].plot(np.log(en_bl[::sl,a_i]), (dphi[i,::ds,:]/en[i,::sl,a_i]**3-dphi_bl[::ds,:]/en_bl[::sl,a_i]**3).T)
 
 fig.set_tight_layout(True)
 if (SCALE_FIG == True):
@@ -152,6 +154,7 @@ if (SAVE_FIG[nfig-1] == True):
 if (chi_bl_f != ''):
 # Plot 3: \delta\chi clocked on \phi, \delta\chi clocked on \alpha
 	nfig += 1
+	print('In plot: ', nfig)
 	fig, ax = plt.subplots(nrows=2 , ncols=1 , sharex=False)
 	f_title = r'$\chi-\bar{\chi}$'
 	s_title = [r'$\delta\chi$',r'$\Delta\chi$']
@@ -164,10 +167,10 @@ if (chi_bl_f != ''):
 		ax[i].set_ylabel(y_lab[i], fontsize = y_lab_fs)
 		ax[i].ticklabel_format(axis='y', style='scientific', scilimits=(0,0))
 
-	ax[0].plot(np.log(en_bl[::sl,a_i]), (chi_bl[:,:]-en_bl[::sl,chi_i]).T)
+	ax[0].plot(np.log(en_bl[::sl,a_i]), (chi_bl[::ds,:]-en_bl[::sl,chi_i]).T)
 	for i in range(0,len(chi_f)):
-		ax[0].plot(np.log(en[i,::sl,a_i]), (chi[i,:,:]-en[i,::sl,chi_i]).T)
-		ax[1].plot(np.log(en_bl[::sl,a_i]), (chi[i,:,:]-chi_bl[:,:]).T)
+		ax[0].plot(np.log(en[i,::sl,a_i]), (chi[i,::ds,:]-en[i,::sl,chi_i]).T)
+		ax[1].plot(np.log(en_bl[::sl,a_i]), (chi[i,::ds,:]-chi_bl[::ds,:]).T)
 
 	fig.set_tight_layout(True)
 	if (SCALE_FIG == True):
@@ -178,6 +181,7 @@ if (chi_bl_f != ''):
 if (dchi_bl_f != ''):
 # Plot 4: \delta\Pi_phi clocked on \phi, \delta\Pi_\phi clocked on \alpha
 	nfig += 1
+	print('In plot: ', nfig)
 	fig, ax = plt.subplots(nrows=2 , ncols=1 , sharex=False)
 	f_title = r'$\chi-\bar{\chi}$'
 	s_title = [r'$\delta\dot{\chi}$', r'$\Delta\dot{\chi}$']
@@ -190,10 +194,10 @@ if (dchi_bl_f != ''):
 		ax[i].set_ylabel(y_lab[i], fontsize = y_lab_fs)
 		ax[i].ticklabel_format(axis='y', style='scientific', scilimits=(0,0))
 
-	ax[0].plot(np.log(en_bl[::sl,a_i]), ((dchi_bl[:,:]-en_bl[::sl,dchi_i])/en_bl[::sl,a_i]**3).T)
+	ax[0].plot(np.log(en_bl[::sl,a_i]), ((dchi_bl[::ds,:]-en_bl[::sl,dchi_i])/en_bl[::sl,a_i]**3).T)
 	for i in range(0,len(dchi_f)):
-		ax[0].plot(np.log(en[i,::sl,a_i]), ((dchi[i,:,:]-en[i,::sl,dchi_i])/en[i,::sl,a_i]**3).T)
-		ax[1].plot(np.log(en_bl[::sl,a_i]), (dchi[i,:,:]/en[i,::sl,a_i]**3-dchi_bl[:,:]/en_bl[::sl,a_i]**3).T)
+		ax[0].plot(np.log(en[i,::sl,a_i]), ((dchi[i,::ds,:]-en[i,::sl,dchi_i])/en[i,::sl,a_i]**3).T)
+		ax[1].plot(np.log(en_bl[::sl,a_i]), (dchi[i,::ds,:]/en[i,::sl,a_i]**3-dchi_bl[::ds,:]/en_bl[::sl,a_i]**3).T)
 
 	fig.set_tight_layout(True)
 	if (SCALE_FIG == True):
