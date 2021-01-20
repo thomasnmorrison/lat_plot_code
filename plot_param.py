@@ -107,6 +107,8 @@ nfld = 2
 # Potential parameters
 phi_p = 8.5
 phi_w = 0.1
+m2_p = -1600.
+lambda_chi = 1.e6
 
 # Data outputting parameters
 sl = 256+128#2**2#  # steplat

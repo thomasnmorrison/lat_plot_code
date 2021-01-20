@@ -8,11 +8,13 @@
 # Plot 5: ln(a) vs conservation of energy
 
 # to do: plot lines at \Delta V
+# to do: plot \Delta V\V_0
 
 # Import packages
 import numpy as np
 import matplotlib.pyplot as plt
 from plot_param import *
+import potential as pot
 
 # Set style
 plt.style.use('./lat_plots.mplstyle')
@@ -28,6 +30,9 @@ en_bl, en = load_energy()
 dv_i = np.zeros(2, dtype=np.int64)
 dv_i[0] = np.argmin(np.absolute(en[0,:,phi_i]-(phi_p+phi_w)))
 dv_i[1] = np.argmin(np.absolute(en[0,:,phi_i]-(phi_p-phi_w)))
+
+# Set potential parameters
+pot.init_param(phi_p, phi_w, m2_p, lambda_chi)
 
 # Make plots
 nfig = 0
@@ -73,6 +78,37 @@ for i in range(0,len(en)):
 	ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoK_i]/en[i,:,rho_i], ls='-', c='k', label=r'Kinetic')
 	ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoG_i]/en[i,:,rho_i], ls='-', c='r', label=r'Gradient')
 	ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoP_i]/en[i,:,rho_i], ls='-', c='b', label=r'Potential')
+ylim = ax.get_ylim()
+ax.plot([np.log(en[0,dv_i[0],a_i]),np.log(en[0,dv_i[0],a_i])], ylim ,ls='-', c='g', lw=0.5)
+ax.plot([np.log(en[0,dv_i[1],a_i]),np.log(en[0,dv_i[1],a_i])], ylim ,ls='-', c='g', lw=0.5, label=r'$\Delta V$ on/off')
+ax.set_ylim(ylim)
+ax.legend()
+
+if SAVE_FIGS:
+	plt.savefig(fig_n)
+
+# Plot 2a: ln(a) vs fractional KE, PE, GE
+nfig += 1
+fig, ax = plt.subplots(nrows=1 , ncols=1 , sharex=False)
+fig_n = 'ener_plt' + str(nfig) + run_ident[0] + '.png'
+f_title = r'Energy Fractions'
+s_title = [r'Energy Fractions']
+x_lab = [r'$\mathrm{ln}(a)$']
+y_lab = [r'$\rho_{\mathrm{part}}/\rho_{\mathrm{total}}$']
+fig.suptitle(f_title)
+ax.set_xlabel(x_lab[0]); ax.set_ylabel(y_lab[0])
+ax.set_xmargin(m = 0.)
+ax.semilogy()
+
+ax.plot(np.log(en_bl[:,a_i]), en_bl[:,rhoK_i]/en_bl[:,rho_i], ls='--', c='k', label=r'Kinetic')
+ax.plot(np.log(en_bl[:,a_i]), en_bl[:,rhoG_i]/en_bl[:,rho_i], ls='--', c='r', label=r'Gradient')
+ax.plot(np.log(en_bl[:,a_i]), en_bl[:,rhoP_i]/en_bl[:,rho_i], ls='--', c='b', label=r'Potential')
+for i in range(0,len(en)):
+	ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoK_i]/en[i,:,rho_i], ls='-', c='k', label=r'Kinetic')
+	ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoG_i]/en[i,:,rho_i], ls='-', c='r', label=r'Gradient')
+	ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoP_i]/en[i,:,rho_i], ls='-', c='b', label=r'Potential')
+        ax.plot(np.log(en[i,:,a_i]), en[i,:,rhoP_i]/pot.V_0(en[i,:,phi_i],en[i,:,chi_i]), ls='-.', c='g', label=r'$V/V_0$')
+        ax.plot(np.log(en[i,:,a_i]), pot.V(en[i,:,phi_i], pot.chi_min(en[i,:,phi_i]))/pot.V_0(en[i,:,phi_i],en[i,:,chi_i]), ls='..', c='g', label=r'$V_{\mathrm{min}}|_{\langle \phi \rangle}/V_0$')
 ylim = ax.get_ylim()
 ax.plot([np.log(en[0,dv_i[0],a_i]),np.log(en[0,dv_i[0],a_i])], ylim ,ls='-', c='g', lw=0.5)
 ax.plot([np.log(en[0,dv_i[1],a_i]),np.log(en[0,dv_i[1],a_i])], ylim ,ls='-', c='g', lw=0.5, label=r'$\Delta V$ on/off')
