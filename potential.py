@@ -65,12 +65,9 @@ def m2eff_chi(f1, mpl_n=False):
 
 # chi at the minimum of the trough
 def chi_min(f1):
-        g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
-        if (np.abs(f1-phi_p)>phi_w):
-                chi_min = 0.
-        else:
-                chi_min = np.sqrt((-m2_p[0]+m2_inf[0]-g2*(f1-phi_p[0])**2) / (- g2**2/(2.*(m2_inf[0]-m2_p[0]))*(f1-phi_p[0])**4))
-        return chi_min
+	g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
+	chi_min = np.where((m2eff_chi(f1)>0),0.,np.sqrt(-0.5*m2eff_chi(f1)/(0.5*lambda_chi[0])))
+	return chi_min
                 
 # Full potential, with baseline option to ignore interaction term
 def V(f1, f2, mpl_n=False, baseline=False):
@@ -84,7 +81,7 @@ def V(f1, f2, mpl_n=False, baseline=False):
 
 # Quadratic portion of the baseline potential
 def V_0(f1, f2, mpl_n=False):
-        V_0 = 0.5*m2_phi*f1**2 + 0.5*m2_inf*f2**2
+        V_0 = 0.5*m2_phi[0]*f1**2 + 0.5*m2_inf[0]*f2**2
         if mpl_n==True:
                 V_0 = V_0/mpl[0]**2
         return V_0
