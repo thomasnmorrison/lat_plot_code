@@ -15,7 +15,7 @@ def pspec_3d(spec_dft, L, N):
     dk = 2.*np.pi/L
     n_max = np.shape(spec_dft)[-1]  # number of entries in spec_dft
     n = np.arange(0,n_max+1)
-    P = (2.*np.pi**2)*dk**3*dx**3 * spec_dft * n**d/N**d
+    P = (2.*np.pi**2)*dk**3*dx**3 * spec_dft * n**3/N**3
     return P
 
 # Function to calculate spectrum from a given DFT correlation
@@ -24,5 +24,5 @@ def pspec_3d(spec_dft, L, N):
 # N: number of sites on lattice size
 def spec_3d(spec_dft, L, N):
     dx = L/N
-    P = N**3/dx**3 * spec_dft
+    P = dx**3/N**3 * spec_dft
     return P
