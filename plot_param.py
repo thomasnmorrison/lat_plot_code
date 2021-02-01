@@ -120,6 +120,7 @@ nl = (ne-1)//sl+1  # number of lattice output steps
 ns = nl//ss        # number of spectra output steps            
 nsk = int(np.sqrt(((nx/2+1)**2+(ny/2+1)**2+(nz/2+1)**2)+1.))  # number of bins in the spectra
 k_ar = dk*np.arange(0,nsk)  # array of k values binned in spec 
+k_nyq = dk*(nx//2+1)
 
 # Indexing constants
 # en indexing
@@ -159,6 +160,12 @@ def load_moments():
 		zm[i] = np.loadtxt(path_n + path[i] + zm_f + run_ident[i] + '.out')
 	return zm_bl, zm
 
+# Function to read in energies and lattice averages from a single file
+def load_ener(f_in, path_in):
+        en = np.loadtxt(path_n + path_in + f_in)
+        en[:,hub_i] = np.sqrt(-en[:,hub_i]/3.)
+        return en
+
 # Function to read in a lattice variable from file and resize the array
 def load_lat(f_in, path_in):
 	lat = np.fromfile(path_n + path_in + f_in, dtype=np.double, count=-1)
@@ -175,6 +182,7 @@ def load_lat(f_in, path_in):
 #	print('np.shape(spec) = ', np.shape(spec))
 #	spec = np.transpose(spec, (1,0,2))
 #	return spec
+
 
 # Function to read spectra from file and resize arrays
 # to do: check ordering of resize
