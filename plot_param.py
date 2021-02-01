@@ -12,11 +12,11 @@
 import numpy as np
 
 # File names and paths
-path_n = '/mnt/raid-cita/morrison/bin_lat_data/'#'/mnt/scratch-lustre/morrison/lat_bin_data/'  #'../lattice-dev-master/Pseudospec/openmp_dev/'#
-path_bl = 'ri_128_1_000/'#''#
-path = ['ri_128_2_302/','ri_128_2_304/','ri_128_2_306/','ri_128_2_308/','ri_128_2_201/','ri_128_2_101/','ri_128_2_102/','ri_128_2_103/','ri_128_2_104/', 'ri_128_2_108/','ri_128_2_112/','ri_128_2_116/','ri_128_2_120/', 'ri_128_2_124/','ri_128_2_128/','ri_128_2_132/']#['ri_128_2_002/']#['']#
-run_ident_bl = '_128_1_000'#'_TESTING32_'#
-run_ident = ['_128_2_302', '_128_2_304', '_128_2_306', '_128_2_308', '_128_2_201', '_128_2_101', '_128_2_102', '_128_2_103', '_128_2_104', '_128_2_108','_128_2_112','_128_2_116','_128_2_120','_128_2_124', '_128_2_128', '_128_2_132'] #['_128_2_002']#['_TESTING32_DV_']#
+path_n = '/mnt/scratch-lustre/morrison/lat_bin_data/' #'/mnt/raid-cita/morrison/bin_lat_data/'#  #'../lattice-dev-master/Pseudospec/openmp_dev/'#
+path_bl = 'ri_128_4_001/'#''#
+path = ['ri_128_4_001/'] #['ri_128_2_302/','ri_128_2_304/','ri_128_2_306/','ri_128_2_308/','ri_128_2_201/','ri_128_2_101/','ri_128_2_102/','ri_128_2_103/','ri_128_2_104/', 'ri_128_2_108/','ri_128_2_112/','ri_128_2_116/','ri_128_2_120/', 'ri_128_2_124/','ri_128_2_128/','ri_128_2_132/', 'ri_128_2_401/','ri_128_2_402/','ri_128_2_403/','ri_128_2_404/']#['ri_128_2_002/']# ['']#
+run_ident_bl = '_128_4_001'#'_TESTING32_'#
+run_ident = ['_128_4_001']#['_128_2_302', '_128_2_304', '_128_2_306', '_128_2_308', '_128_2_201', '_128_2_101', '_128_2_102', '_128_2_103', '_128_2_104', '_128_2_108','_128_2_112','_128_2_116','_128_2_120','_128_2_124', '_128_2_128', '_128_2_132', '_128_2_401', '_128_2_402', '_128_2_403', '_128_2_404'] #['_128_2_002']#['_TESTING32_DV_']#
 
 en_bl_f = 'energy_spec' + run_ident_bl + '.out'  #'energy_spec_TESTING32_.out'   # Baseline run lattice averaged quantities
 en_f = ['energy_spec']*len(run_ident)  #['energy_spec_TESTING32_DV_.out'] # lattice averaged quatities
@@ -99,7 +99,7 @@ print('Plotting runs: ', run_ident)
 # Lattice parameters
 nx = 128; ny = 128; nz = 128
 nlat = nx*ny*nz
-llen = 1.75
+llen = 0.875 #1.75
 dx = llen/nx
 dk = 2*np.pi/llen
 nfld = 2
@@ -108,10 +108,11 @@ nfld = 2
 phi_p = 8.5
 phi_w = 0.1
 m2_p = -1600.
-lambda_chi = 1.e6
+lambda_chi = 1.6e5
+POTOPT = 4
 
 # Data outputting parameters
-sl = 256+128#2**2#  # steplat
+sl = 3*2**2#256+128#2**2#  # steplat
 ss = 2**0  # stepspec
 ds = 2**3  # down sampling of lattice to plot
 ne = 257+128 #257   # number of energy output steps
