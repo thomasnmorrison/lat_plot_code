@@ -27,6 +27,9 @@ en = load_ener(en_f[0], path[0])
 phi = load_lat(phi_f[0], path[0])
 chi = load_lat(chi_f[0], path[0])
 
+# Set potential parameters
+pot.init_param(phi_p, phi_w, m2_p, lambda_chi_in=lambda_chi, POTOPT_in=POTOPT)
+
 # Calculate \phi fluctuations
 phi = (phi.T - en[::sl,phi_i]).T
 
@@ -52,15 +55,22 @@ dist = 10.
 # Animation 1:
 nfig += 1
 f_title = r''
-x_lab = [r'',r'']
-y_lab = [r'',r'']
-z_lab = [r'',r'']
+x_lab = [r'',r'',r'']
+y_lab = [r'',r'',r'']
+z_lab = [r'',r'',r'']
 
 fig = plt.figure()
-ax1 = Axes3D(fig, rect=(0,0.5,1,0.5), azim=azim, elev=elev, proj_type='ortho')
-ax2 = Axes3D(fig, rect=(0,0,1,0.5), azim=azim, elev=elev, proj_type='ortho')
-fld_slice = [ax1,ax2]
+ax0 = fig.add_axes([0.05,0.75,0.2,0.2])
+ax1 = Axes3D(fig, rect=(0.25,0.5,0.7,0.5), azim=azim, elev=elev, proj_type='ortho')
+ax2 = Axes3D(fig, rect=(0.25,0,0.7,0.5), azim=azim, elev=elev, proj_type='ortho')
+fld_slice = [ax0,ax1,ax2]
 fig_n = 'fld_slice_anim' + str(nfig) + run_ident[0] + '.mp4'
+
+ax0.plot(np.log(en[:,a_i]), pot.V(en[:,phi_i], pot.chi_min(en[:,phi_i]))/pot.V_0(en[:,phi_i],en[:,0]), ls=':', c='k', label=r'$V_{\mathrm{min}}|_{\langle \phi \rangle}/V_0$')
+ax0.plot(np.log(en[:,a_i]), en[:,rhoP_i]/pot.V_0(en[:,phi_i],en[:,0]), ls='-.', c='k', label=r'$V/V_0$')
+ylim = ax0.get_ylim()
+line = ax0.plot([np.log(en[0,a_i]),np.log(en[0,a_i])], ylim ,ls='-', c='g', lw=1)
+ax0.set_ylim(ylim)
 
 # to do: set titles and labels
 # to do: set figure size
@@ -69,11 +79,14 @@ def init_anim1():
 	for i in range(0,len(fld_slice)):
 		fld_slice[i].set_xlabel(x_lab[i])
 		fld_slice[i].set_ylabel(y_lab[i])
+	for i in range(1,len(fld_slice)):
 		fld_slice[i].set_zlabel(z_lab[i])
 	#for axis in fld_slice:
 	#	axis.set_yticks([]); axis.set_xticks([])
 	#fig.set_figheight(4.8*2)
 	#fig.set_figwidth(6.4*2)
+#	ax0.plot(np.log(en[:,a_i]), pot.V(en[:,phi_i], pot.chi_min(en[:,phi_i]))/pot.V_0(en[:,phi_i],en[:,chi_i]), ls=':', c='k', label=r'$V_{\mathrm{min}}|_{\langle \phi \rangle}/V_0$')
+#	ylim = ax0.get_ylim()
 	ax1.plot_surface(X,Y,phi[0,:,:,z_i], rcount=nx, cmap='viridis')
 	ax2.plot_surface(X,Y,chi[0,:,:,z_i], rcount=nx, cmap='viridis')
 	return fld_slice
@@ -81,6 +94,8 @@ def init_anim1():
 # to do: update plots
 def anim1(t):
 	print('Animation 1: frame ', t)
+	line[0].set_data([np.log(en[t*sl,a_i]),np.log(en[t*sl,a_i])], ylim)
+	ax0.set_ylim(ylim)
 	ax1.clear()
 	ax2.clear()
 	ax1.plot_surface(X,Y,phi[t,:,:,z_i], rcount=nx, cmap='viridis')

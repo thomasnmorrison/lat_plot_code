@@ -32,7 +32,7 @@ def init_param(phi_p_in, phi_w_in, m2_p_in, m2_phi_in=1., m2_inf_in=1., lambda_c
 	m2_phi[0] = m2_phi_in
 	m2_inf[0] = m2_inf_in
 	lambda_chi[0] = lambda_chi_in
-        POTOPT[0] = POTOPT_in
+	POTOPT[0] = POTOPT_in
 	return
 
 ### Potential Functions
@@ -68,7 +68,7 @@ def V_int_opt2(f1, f2, mpl_n=False):
 
 # phi-chi interaction potential for POTOPT 4
 def V_int_opt4(f1, f2, mpl_n=False):
-        g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
+	g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
 	V_int = 0.5*(0.5*np.sign(phi_p[0]+phi_w[0]-f1)-0.5*np.sign(phi_p-f1)) \
                 *(m2_p[0]-m2_inf[0]+g2*(f1-phi_p[0])**2-g2**2/(4.*(m2_inf[0]-m2_p[0]))*(f1-phi_p[0])**4)*f2**2 \
                 +0.5*(0.5*np.sign(phi_p[0]-f1)+0.5) \
@@ -82,7 +82,7 @@ def m2eff_chi(f1, mpl_n=False):
         if (POTOPT[0]==2):
                 m2eff = m2eff_chi_opt2(f1, mpl_n)
         elif (POTOPT[0]==4):
-                m2eff = m2eff_chi_opt4(f1, mpl_in)
+                m2eff = m2eff_chi_opt4(f1, mpl_n)
         return m2eff
 
 # chi effective mass term (2nd chi partial derivative at chi=0) for POTOPT 2
