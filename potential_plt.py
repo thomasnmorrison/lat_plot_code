@@ -2,7 +2,10 @@
 
 # Script to plot potential
 
-# to do:
+# Plot 1: Plot of m^2_{eff}(\phi) along side surface plot of V(\phi,\chi)
+
+# to do: clip the data in the surface plot so it looks nice
+# to do: add labels
 
 import numpy as np
 import matplotlib.pyplot as plt
