@@ -6,6 +6,7 @@
 
 # to do: clip the data in the surface plot so it looks nice
 # to do: add labels
+# to do: invert x axis on Plot 1a
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,14 +32,14 @@ f1_lim = [phi_p+2.*phi_w, phi_p-2.*phi_w]
 f2_lim = [-2.*pot.chi_min(phi_p), 2.*pot.chi_min(phi_p)]
 f1 = np.linspace(f1_lim[0],f1_lim[1],n_pts)
 f2 = np.linspace(f2_lim[0],f2_lim[1],n_pts)
-X, Y = np.meshgrid(X, Y)
+X, Y = np.meshgrid(f1, f2)
 
 # Plot
 nfig = 0
 
 # Point of view
-elev = 45.
-azim = -30.
+elev = 30.
+azim = 150.
 dist = 10.
 
 # Plot 1:
@@ -54,7 +55,7 @@ ax0 = fig.add_axes([0.05,0.5,0.9,0.5])
 ax1 = Axes3D(fig, rect=(0.05,0.0,0.9,0.5), azim=azim, elev=elev, proj_type='ortho')
 ax = [ax0,ax1]
 ax0.plot(f1, pot.m2eff_chi(f1), c='b', ls='-', lw=1, label=l_lab[0])
-ax1.plot_surface(X,Y,pot.V(X,Y), rcount=n_pts, cmap='virdis')
+ax1.plot_surface(X,Y,pot.V(X,Y), rcount=n_pts, cmap='viridis')
 for axis in ax:
     axis.legend()
     
