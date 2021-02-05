@@ -3,10 +3,10 @@
 # Script to plot potential
 
 # Plot 1: Plot of m^2_{eff}(\phi) along side surface plot of V(\phi,\chi)
+# Plot 2: Contour plot of stable and unstable regions of field space in the
+#         \phi and \chi directions.
 
-# to do: clip the data in the surface plot so it looks nice
-# to do: add labels
-# to do: invert x axis on Plot 1a
+# to do:
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -46,7 +46,7 @@ elev = 45.
 azim = 135.
 dist = 10.
 
-# Plot 1:
+# Plot 1: Plot of m^2_{eff}(\phi) along side surface plot of V(\phi,\chi)
 nfig += 1
 fig_n = 'potential_plt' + str(nfig) + '_' + str(POTOPT) + '_' + '.png'
 x_lab = [r'$\phi-\phi_p$',r'$\phi-\phi_p$']
@@ -68,6 +68,29 @@ ax0.invert_xaxis()
 ax1.plot_surface(X-phi_p,Y,v_clip, rcount=n_pts, cmap='plasma', vmin=np.nanmin(v_clip), vmax=np.nanmax(v_clip))
 for axis in ax:
     axis.legend()
+if SAVE_FIGS:
+    plt.savefig(fig_n)
+
+# Plot 2: Contour plot of stable and unstable regions of field space in the
+#         \phi and \chi directions.
+nfig += 1
+nr=1; nc=2
+fig_n = 'potential_plt' + str(nfig) + '.png'
+f_title = r'(Un)stable Regions'
+s_title = [r'$V_{,\phi\phi}$',r'$V_{,\chi\chi}$']
+x_lab = [r'$\phi$',r'$\phi$']
+y_lab = [r'$\chi$',r'$\chi$']
+fig, ax = plt.subplots(nrows=nr, ncols=nc, sharex=True, sharey=True)
+V_f1f1 = pot.ddV(X,Y,1,1)
+V_f2f2 = pot.ddV(X,Y,2,2)
+cont = np.array([0.])
+ax[0].contourf(X,Y,V_f1f1,cont)
+ax[1].contourf(X,Y,V_f2f2,cont)
+for i in range(0,nc):
+    ax[i].set_title(s_title[i])
+    ax[i].set_xlabel(x_lab[i])
+    ax[i].set_ylabel(y_lab[i])
+    ax[i].legend()
     
 if SAVE_FIGS:
     plt.savefig(fig_n)
