@@ -19,7 +19,7 @@ from plot_param import *
 plt.style.use('./lat_plots.mplstyle')
 
 # Save/show figs
-SAVE_FIGS = False
+SAVE_FIGS = True
 SHOW_FIGS = True
 
 # Read in data
@@ -55,14 +55,14 @@ dist = 10.
 # Animation 1:
 nfig += 1
 f_title = r''
-x_lab = [r'',r'',r'']
+x_lab = [r'$\alpha$',r'',r'']
 y_lab = [r'',r'',r'']
-z_lab = [r'',r'',r'']
+z_lab = [r'',r'$\delta\phi$',r'$\chi$']
 
 fig = plt.figure()
-ax0 = fig.add_axes([0.05,0.75,0.2,0.2])
-ax1 = Axes3D(fig, rect=(0.25,0.5,0.7,0.5), azim=azim, elev=elev, proj_type='ortho')
-ax2 = Axes3D(fig, rect=(0.25,0,0.7,0.5), azim=azim, elev=elev, proj_type='ortho')
+ax0 = fig.add_axes([0.075,0.75,0.2,0.2])
+ax1 = Axes3D(fig, rect=(0.3,0.5,0.65,0.5), azim=azim, elev=elev, proj_type='ortho')
+ax2 = Axes3D(fig, rect=(0.3,0,0.65,0.5), azim=azim, elev=elev, proj_type='ortho')
 fld_slice = [ax0,ax1,ax2]
 fig_n = 'fld_slice_anim' + str(nfig) + run_ident[0] + '.mp4'
 
@@ -91,7 +91,6 @@ def init_anim1():
 	ax2.plot_surface(X,Y,chi[0,:,:,z_i], rcount=nx, cmap='viridis')
 	return fld_slice
 
-# to do: update plots
 def anim1(t):
 	print('Animation 1: frame ', t)
 	line[0].set_data([np.log(en[t*sl,a_i]),np.log(en[t*sl,a_i])], ylim)
@@ -100,17 +99,18 @@ def anim1(t):
 	ax2.clear()
 	ax1.plot_surface(X,Y,phi[t,:,:,z_i], rcount=nx, cmap='viridis')
 	ax2.plot_surface(X,Y,chi[t,:,:,z_i], rcount=nx, cmap='viridis')
+	for i in range(0,len(fld_slice)):
+		fld_slice[i].set_xlabel(x_lab[i])
+		fld_slice[i].set_ylabel(y_lab[i])
+	for i in range(1,len(fld_slice)):
+		fld_slice[i].set_zlabel(z_lab[i])
 	return fld_slice
 
 anim = animation.FuncAnimation(fig, anim1, frames=nl, init_func=init_anim1, interval=300)
-#t=2
-#ax1.plot_surface(X,Y,phi[t,:,:,z_i], rcount=nx, cmap='viridis')
-#ax2.plot_surface(X,Y,chi[t,:,:,z_i], rcount=nx, cmap='viridis')
 
 # Save/show
 writer = animation.FFMpegFileWriter(codec='mpeg4')
 if SAVE_FIGS:
-	#plt.savefig(fig_n)
 	anim.save(fig_n, writer=writer)
 	
 

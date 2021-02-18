@@ -193,17 +193,20 @@ def ddV_f2f2(f1,f2):
         return ddV
 
 def ddV_f1f1_opt2(f1,f2):
+        g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
         ddV = m2_phi \
                 +0.5*(-0.5*np.sign(-f1+phi_p[0]-phi_w[0])-0.5*np.sign(f1-phi_p[0]-phi_w[0])) \
                 *(2.*g2 - 3.*g2**2/((m2_inf[0]-m2_p[0]))*(f1-phi_p[0])**2) * f2**2
         return ddV
 
 def ddV_f1f2_opt2(f1,f2):
+        g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
         ddV = (-0.5*np.sign(-f1+phi_p[0]-phi_w[0])-0.5*np.sign(f1-phi_p[0]-phi_w[0])) \
                 *(2.*g2*(f1-phi_p[0]) - g2**2/((m2_inf[0]-m2_p[0]))*(f1-phi_p[0])**3) * f2
         return ddV
 
 def ddV_f2f2_opt2(f1,f2):
+        g2 = 2.*(m2_inf[0]-m2_p[0])/(phi_w[0]**2)
         ddV = m2_inf + 3.*lambda_chi*f2**2 \
                 +(-0.5*np.sign(-f1+phi_p[0]-phi_w[0])-0.5*np.sign(f1-phi_p[0]-phi_w[0])) \
                 *( m2_p[0]-m2_inf[0] + g2*(f1-phi_p[0])**2 - g2**2/(4.*(m2_inf[0]-m2_p[0]))*(f1-phi_p[0])**4)
