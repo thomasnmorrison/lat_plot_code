@@ -7,7 +7,20 @@ import numpy as np
 
 # Define functions
 
-# Function to take an fft and return it splin into k-bands. Modes between bands are given
+# Function to take a field and return it split into bands with specified k weighting.
+# f: input field
+# W: array of weights per k band
+# n: lattice size tuple
+def fldband(f,W,n):
+    fk = np.fft.rfftn(f,n)
+    print(np.shape(fk))
+    fk_band = kband(fk, W, n)
+    print(np.shape(fk_band))
+    f_band = np.fft.irfftn(fk_band,n)
+    print(np.shape(f_band))
+    return f_band
+
+# Function to take an fft and return it split into k-bands. Modes between bands are given
 # linear weighting to neighbouring bands.
 # fft_in: input fft
 # W_in: input weights for each fft mode in each band
@@ -43,4 +56,13 @@ def band_w_lin(k_ind, n):
         W[i+1] += np.where((rad>=k_ind[i] and rad<k_ind[i+1]),
                            (rad-k_ind[i])/(k_ind[i+1]-k_ind[i]),0.)
     W[-1] += np.where((rad==k_ind[-1]),1.,0.)
+    return W
+
+# Function to generate weighting for a low pass gaussian filter.
+# sig: sigma of gaussian in units of \Delta l
+# n: shape of fft lattice as a tuple
+def low_pass_gauss(sig,n):
+    rad = lat_freq(n)
+    rad = rad[...,:n[-1]//2+1]
+    W = np.exp(-rad**2/(2*sig**2))
     return W
